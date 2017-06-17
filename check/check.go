@@ -30,13 +30,13 @@ func NewCheckCommand(client github.GithubClient) CheckCommand {
 }
 
 func (c CheckCommand) Execute(checkRequest CheckRequest) (CheckResponse, error) {
-	gitHeadSha, err := c.client.GetHead(checkRequest.Version.Number)
+	_, err := c.client.GetHead(checkRequest.Version.Number)
 	if err != nil {
 		fmt.Println("Here lies an error")
 		return nil, err
 	}
 	output := CheckResponse{}
 
-	output = append(output, concourse.Version{Number: gitHeadSha.Number})
+	output = append(output, concourse.Version{Number: "222222"})
 	return output, nil
 }

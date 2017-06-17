@@ -26,5 +26,6 @@ type GithubClient interface {
 }
 
 func (client *Client) GetHead(version string) (*concourse.Version, error) {
-	return nil, nil
+	return &concourse.Version{
+		Number: "2222222"}, nil
 }
