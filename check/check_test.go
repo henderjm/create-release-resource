@@ -15,10 +15,18 @@ var _ = Describe("CheckCommand", func() {
 		checkRequest     check.CheckRequest
 	)
 
+	BeforeEach(func() {
+		fakeGithubClient = &fakes.GithubClient{
+			VersionsToReturn: "222222",
+		}
+	})
+
 	It("Returns the HEAD commit sha", func() {
 		checkRequest.Version = concourse.Version{Number: "111111"}
 		checkCommand := check.NewCheckCommand(fakeGithubClient)
-		_, err := checkCommand.Execute(checkRequest)
-		Ω("124").Should(Equal("123"))
+		checkResponse, err := checkCommand.Execute(checkRequest)
+		Expect(err).ToNot(HaveOccurred())
+		Ω(checkResponse).Should(Equal(check.CheckResponse{
+			concourse.Version{Number: "222222"}}))
 	})
 })

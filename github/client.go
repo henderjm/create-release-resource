@@ -1,5 +1,7 @@
 package github
 
+import "github.com/henderjm/create-release-resource/concourse"
+
 type DeployParams struct {
 	Final      bool
 	Repository string
@@ -20,9 +22,9 @@ func NewClient(uname, pwd, repo, gitBranch string) *Client {
 }
 
 type GithubClient interface {
-	GetHead(version string) error
+	GetHead(version string) (*concourse.Version, error)
 }
 
-func (client *Client) GetHead(version string) error {
-	return nil
+func (client *Client) GetHead(version string) (*concourse.Version, error) {
+	return nil, nil
 }

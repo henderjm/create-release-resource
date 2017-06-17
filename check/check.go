@@ -3,6 +3,7 @@ package check
 import (
 	"fmt"
 
+	"github.com/henderjm/create-release-resource/concourse"
 	"github.com/henderjm/create-release-resource/github"
 )
 
@@ -14,7 +15,7 @@ type Version struct {
 	CommitSha string `json:"commit_sha"`
 }
 
-type CheckResponse []Version
+type CheckResponse []concourse.Version
 
 func NewVersion(commitsha string) Version {
 	return Version{
@@ -29,9 +30,13 @@ func NewCheckCommand(client github.GithubClient) CheckCommand {
 }
 
 func (c CheckCommand) Execute(checkRequest CheckRequest) (CheckResponse, error) {
-	output := []Version{}
-	version := NewVersion("222222")
-	fmt.Println("version is " + version.CommitSha)
-	output = append(output, version)
+	gitHeadSha, err := c.client.GetHead(checkRequest.Version.Number)
+	if err != nil {
+		fmt.Println("Here lies an error")
+		return nil, err
+	}
+	output := CheckResponse{}
+
+	output = append(output, concourse.Version{Number: gitHeadSha.Number})
 	return output, nil
 }
