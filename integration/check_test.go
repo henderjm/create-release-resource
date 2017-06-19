@@ -3,7 +3,6 @@ package integration_test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os/exec"
 	"time"
 
@@ -27,23 +26,32 @@ var _ = Describe("Check", func() {
 	})
 
 	It("should return an empty array when latest version matches", func() {
+		checkRequest := check.CheckRequest{
+			Version: concourse.Version{Number: "999d8f8554db612b00cf26637686a062f28fcee4"}}
+
+		stdin := &bytes.Buffer{}
+		err := json.NewEncoder(stdin).Encode(checkRequest)
+		Expect(err).NotTo(HaveOccurred())
+
 		command := exec.Command(checkPath)
+		command.Stdin = stdin
+
 		session, err = gexec.Start(command, GinkgoWriter, GinkgoWriter)
 		Expect(err).NotTo(HaveOccurred())
 
 		Eventually(session, 5*time.Second).Should(gexec.Exit(0))
 		reader := bytes.NewBuffer(session.Buffer().Contents())
 
-		var response check.CheckResponse
-		err := json.NewDecoder(reader).Decode(&response)
-		fmt.Println(response)
+		response := check.CheckResponse{}
+		err = json.NewDecoder(reader).Decode(&response)
+
 		Ω(err).ShouldNot(HaveOccurred())
 		Ω(response).Should(BeEmpty())
 	})
 
 	It("should return an array of versions when there are currently none", func() {
 		checkRequest := check.CheckRequest{
-			Version: concourse.Version{Number: "111111"},
+			Version: concourse.Version{Number: "736b8f1dda544789fd194fd3775d71ea58095e6d"},
 		}
 		stdin := &bytes.Buffer{}
 		err := json.NewEncoder(stdin).Encode(checkRequest)
@@ -62,6 +70,6 @@ var _ = Describe("Check", func() {
 		err = json.NewDecoder(reader).Decode(&response)
 
 		Expect(err).NotTo(HaveOccurred())
-		Ω(response).Should(Equal(check.CheckResponse{concourse.Version{Number: "222222"}}))
+		Ω(response).Should(Equal(check.CheckResponse{concourse.Version{Number: "999d8f8554db612b00cf26637686a062f28fcee4"}}))
 	})
 })

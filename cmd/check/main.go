@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/henderjm/create-release-resource/check"
+	"github.com/henderjm/create-release-resource/concourse"
 	"github.com/henderjm/create-release-resource/github"
 )
 
@@ -28,5 +29,16 @@ func main() {
 		fmt.Println("Could not execute check")
 		os.Exit(1)
 	}
-	err = json.NewEncoder(os.Stdout).Encode(response)
+	responseToReturn := check.CheckResponse{}
+	if request.Version.Number == response[0].Number {
+		err = json.NewEncoder(os.Stdout).Encode(check.CheckResponse{})
+	} else {
+		responseToReturn = append(responseToReturn, concourse.Version{Number: response[0].Number})
+		err = json.NewEncoder(os.Stdout).Encode(responseToReturn)
+	}
+	if err != nil {
+		fmt.Println("Can not return version to concourse")
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

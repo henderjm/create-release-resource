@@ -1,6 +1,13 @@
 package github
 
-import "github.com/henderjm/create-release-resource/concourse"
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/google/go-github/github"
+	"github.com/henderjm/create-release-resource/concourse"
+)
 
 type DeployParams struct {
 	Final      bool
@@ -26,6 +33,18 @@ type GithubClient interface {
 }
 
 func (client *Client) GetHead(version string) (*concourse.Version, error) {
+	gc := github.NewClient(nil)
+
+	repos, _, err := gc.Repositories.ListCommits(context.Background(), "henderjm", "test-repository", nil)
+	if err != nil {
+		fmt.Println("Error getting repo")
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	// for _, shas := range repos {
+	// 	fmt.Println(*shas.SHA)
+	// }
+	latestVersion := *repos[0].SHA
 	return &concourse.Version{
-		Number: "2222222"}, nil
+		Number: latestVersion}, nil
 }
