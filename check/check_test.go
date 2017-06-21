@@ -21,6 +21,16 @@ var _ = Describe("CheckCommand", func() {
 		}
 	})
 
+	It("Returns an empty response when current version is latest SHA", func() {
+		checkRequest.Version = concourse.Version{Number: "222222"}
+		checkCommand := check.NewCheckCommand(fakeGithubClient)
+		checkResponse, err := checkCommand.Execute(checkRequest)
+
+		Ω(err).ShouldNot(HaveOccurred())
+		Ω(checkResponse).Should(BeEmpty())
+
+	})
+
 	It("Returns the HEAD commit sha", func() {
 		checkRequest.Version = concourse.Version{Number: "111111"}
 		checkCommand := check.NewCheckCommand(fakeGithubClient)
