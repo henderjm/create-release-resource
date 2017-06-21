@@ -17,7 +17,7 @@ var _ = Describe("CheckCommand", func() {
 
 	BeforeEach(func() {
 		fakeGithubClient = &fakes.GithubClient{
-			VersionsToReturn: "222222",
+			VersionsToReturn: []string{"222222", "111111", "000000"},
 		}
 	})
 
@@ -28,15 +28,23 @@ var _ = Describe("CheckCommand", func() {
 
 		Ω(err).ShouldNot(HaveOccurred())
 		Ω(checkResponse).Should(BeEmpty())
-
 	})
 
-	It("Returns the HEAD commit sha", func() {
+	It("Returns latest response when current version is one previous to latest SHA", func() {
 		checkRequest.Version = concourse.Version{Number: "111111"}
 		checkCommand := check.NewCheckCommand(fakeGithubClient)
 		checkResponse, err := checkCommand.Execute(checkRequest)
 		Expect(err).ToNot(HaveOccurred())
 		Ω(checkResponse).Should(Equal(check.CheckResponse{
 			concourse.Version{Number: "222222"}}))
+	})
+
+	It("Returns latest responses when current version is not latest SHA", func() {
+		checkRequest.Version = concourse.Version{Number: "000000"}
+		checkCommand := check.NewCheckCommand(fakeGithubClient)
+		checkResponse, err := checkCommand.Execute(checkRequest)
+		Expect(err).ToNot(HaveOccurred())
+		Ω(checkResponse).Should(Equal(check.CheckResponse{
+			concourse.Version{Number: "222222"}, concourse.Version{Number: "111111"}}))
 	})
 })

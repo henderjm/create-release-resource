@@ -3,13 +3,13 @@ package fakes
 import "github.com/henderjm/create-release-resource/concourse"
 
 type GithubClient struct {
-	VersionsToReturn string
+	VersionsToReturn []string
 	// HeadCommitSha    []string
 	// ErrorToBeReturned       error
 }
 
-func (fakeGithubClient *GithubClient) GetHead(version string) (*concourse.Version, error) {
-	return &concourse.Version{
+func (fakeGithubClient *GithubClient) GetListCommits(version string) (*concourse.VersionList, error) {
+	return &concourse.VersionList{
 		Number: fakeGithubClient.VersionsToReturn,
 	}, nil
 }

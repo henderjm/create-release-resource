@@ -15,7 +15,6 @@ type Version struct {
 	CommitSha string `json:"commit_sha"`
 }
 
-type CheckResponse []concourse.Version
 
 func NewVersion(commitsha string) Version {
 	return Version{
@@ -29,14 +28,36 @@ func NewCheckCommand(client github.GithubClient) CheckCommand {
 	}
 }
 
+type CheckResponse []concourse.Version
+
+
 func (c CheckCommand) Execute(checkRequest CheckRequest) (CheckResponse, error) {
-	response, err := c.client.GetHead(checkRequest.Version.Number)
+	response, err := c.client.GetListCommits(checkRequest.Version.Number)
 	if err != nil {
 		fmt.Println("Here lies an error")
 		return nil, err
 	}
 	output := CheckResponse{}
 
-	output = append(output, *response)
+	fmt.Println(response)
+
+	// check head
+	if response.Number[0] == checkRequest.Version.Number {
+		fmt.Println("We are the same!")
+		return output, nil
+	}
+
+	for _, num := range response.Number {
+		output = append(output, concourse.Version { Number:num })
+	}
+
+	for indx, version := range output {
+		if version.Number == checkRequest.Version.Number {
+			// slice
+			output = output[:indx]
+		}
+	}	
+
+	fmt.Println(output)
 	return output, nil
 }

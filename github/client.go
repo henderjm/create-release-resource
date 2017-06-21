@@ -29,22 +29,30 @@ func NewClient(uname, pwd, repo, gitBranch string) *Client {
 }
 
 type GithubClient interface {
-	GetHead(version string) (*concourse.Version, error)
+	GetListCommits(version string) (*concourse.VersionList, error)
 }
 
-func (client *Client) GetHead(version string) (*concourse.Version, error) {
+func (client *Client) GetListCommits(version string) (*concourse.VersionList, error) {
 	gc := github.NewClient(nil)
 
-	repos, _, err := gc.Repositories.ListCommits(context.Background(), "henderjm", "test-repository", nil)
+	commits, _, err := gc.Repositories.ListCommits(context.Background(), "henderjm", "test-repository", nil)
 	if err != nil {
 		fmt.Println("Error getting repo")
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	// for _, shas := range repos {
+	//for _, shas := range repos {
 	// 	fmt.Println(*shas.SHA)
 	// }
-	latestVersion := *repos[0].SHA
-	return &concourse.Version{
+	//
+	shaValues := []string{}
+
+	// gather the sha values from repos
+	for _, commit := range commits {
+		shaValues = append(shaValues, *commit.SHA)
+	}
+	latestVersion := shaValues
+
+	return &concourse.VersionList{
 		Number: latestVersion}, nil
 }
