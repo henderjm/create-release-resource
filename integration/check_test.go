@@ -49,7 +49,7 @@ var _ = Describe("Check", func() {
 		Ω(response).Should(BeEmpty())
 	})
 
-	It("should return an array of versions when there are currently none", func() {
+	It("should return an array of versions when there are more than one newer version", func() {
 		checkRequest := check.CheckRequest{
 			Version: concourse.Version{Number: "736b8f1dda544789fd194fd3775d71ea58095e6d"},
 		}
@@ -70,6 +70,16 @@ var _ = Describe("Check", func() {
 		err = json.NewDecoder(reader).Decode(&response)
 
 		Expect(err).NotTo(HaveOccurred())
-		Ω(response).Should(Equal(check.CheckResponse{concourse.Version{Number: "999d8f8554db612b00cf26637686a062f28fcee4"}}))
+		Ω(response).Should(Equal(
+			check.CheckResponse{
+				concourse.Version{
+					Number: "999d8f8554db612b00cf26637686a062f28fcee4",
+				},
+				concourse.Version{
+					Number: "3cec9d4183645051445b639eced951592bf6ff6b",
+				},
+			},
+		))
 	})
+
 })

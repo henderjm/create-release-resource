@@ -44,7 +44,26 @@ var _ = Describe("CheckCommand", func() {
 		checkCommand := check.NewCheckCommand(fakeGithubClient)
 		checkResponse, err := checkCommand.Execute(checkRequest)
 		Expect(err).ToNot(HaveOccurred())
-		Ω(checkResponse).Should(Equal(check.CheckResponse{
-			concourse.Version{Number: "222222"}, concourse.Version{Number: "111111"}}))
+		Ω(checkResponse).Should(Equal(
+			check.CheckResponse{
+				concourse.Version{Number: "222222"}, concourse.Version{Number: "111111"}},
+		),
+		)
+	})
+
+	It("Returns all versions if no version is passed in", func() {
+		checkRequest.Version = concourse.Version{Number: ""}
+		checkCommand := check.NewCheckCommand(fakeGithubClient)
+		checkResponse, err := checkCommand.Execute(checkRequest)
+
+		Ω(err).ShouldNot(HaveOccurred())
+		Ω(checkResponse).Should(Equal(
+			check.CheckResponse{
+				concourse.Version{Number: "222222"},
+				concourse.Version{Number: "111111"},
+				concourse.Version{Number: "000000"},
+			},
+		),
+		)
 	})
 })
